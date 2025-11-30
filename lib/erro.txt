@@ -1,0 +1,11 @@
+//docker run -u zap -p 8080:8080 -p 8090:8090 -e ZAP_API_KEY=12345 -e ZAP_CORS_ALLOW_ORIGIN=* -e ZAP_CORS_ENABLED=true zaproxy/zap-stable zap.sh -daemon -port 8080 -host 0.0.0.0 -config api.disablekey=false -config api.key=12345 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+
+
+E fazer uma parte de comunicação com o próprio computador, para listar dados salvos e salvar novos (arquivos ou BD).
+
+Não tem obrigação de os valores retornados pela API externa estarem ligados de alguma forma a parte de salvar no computador, porém é interessante.
+
+Deverá ser utilizado todos os conceitos que aprendemos até o momento (layout, widgets, splashscreen e etc).
+SQLite/noSql é opcional mas é um diferencial.
+
+Procurar e adicionar ao trabalho frameworks (preferencialmente diferente dos apresentados em aula) de gerenciamento de estados.
