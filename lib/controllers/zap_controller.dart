@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../services/zap_service.dart';
 
-class ZapController extends ChangeNotifier {
+class ZapController extends GetxController {
   final ZapService service;
 
   ZapController(this.service);
@@ -13,13 +13,12 @@ class ZapController extends ChangeNotifier {
   String lastMessage = '';
   Timer? _pollTimer;
 
-  void _setLoading(bool v) {
-    loading = v;
-    notifyListeners();
-  }
+  // The _setLoading method is removed as 'loading' state changes
+  // will trigger updates directly via update()
 
   Future<void> loadVersion() async {
-    _setLoading(true);
+    loading = true;
+    update(); // Notify GetX listeners
     try {
       version = await service.getVersion();
       lastMessage = 'Conectado';
@@ -27,14 +26,15 @@ class ZapController extends ChangeNotifier {
       version = null;
       lastMessage = 'Erro ao conectar: $e';
     } finally {
-      _setLoading(false);
+      loading = false;
+      update(); // Notify GetX listeners
     }
   }
 
   Future<String?> runSpider(String url) async {
-    _setLoading(true);
+    loading = true;
     progress = 0;
-    notifyListeners();
+    update(); // Notify GetX listeners
     try {
       await service.newSession();
       final scanId = await service.startSpider(url);
@@ -46,14 +46,15 @@ class ZapController extends ChangeNotifier {
       lastMessage = 'Erro spider: $e';
       rethrow;
     } finally {
-      _setLoading(false);
+      loading = false;
+      update(); // Notify GetX listeners
     }
   }
 
   Future<String?> runActiveScan(String url) async {
-    _setLoading(true);
+    loading = true;
     progress = 0;
-    notifyListeners();
+    update(); // Notify GetX listeners
     try {
       await service.newSession();
       final scanId = await service.startActiveScan(url);
@@ -64,7 +65,8 @@ class ZapController extends ChangeNotifier {
       lastMessage = 'Erro active scan: $e';
       rethrow;
     } finally {
-      _setLoading(false);
+      loading = false;
+      update(); // Notify GetX listeners
     }
   }
 
@@ -83,7 +85,7 @@ class ZapController extends ChangeNotifier {
             progress = val;
           }
           lastMessage = 'Progresso: $progress%';
-          notifyListeners();
+          update(); // Notify GetX listeners
           if (progress >= 100) {
             t.cancel();
             completer.complete();
@@ -92,7 +94,7 @@ class ZapController extends ChangeNotifier {
       } catch (e) {
         // ignora erro temporário, mas anota
         lastMessage = 'Erro no polling: $e';
-        notifyListeners();
+        update(); // Notify GetX listeners
       }
     });
     return completer.future;
@@ -103,8 +105,8 @@ class ZapController extends ChangeNotifier {
   }
 
   @override
-  void dispose() {
+  void onClose() {
     _pollTimer?.cancel();
-    super.dispose();
+    super.onClose();
   }
 }
