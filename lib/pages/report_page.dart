@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:zap_scanner/controllers/zap_controller.dart';
+import 'package:zap_scanner/models/report.dart';
 
 class ReportPage extends StatefulWidget {
-  final String reportHtml;
-  const ReportPage({super.key, required this.reportHtml});
+  final Report report;
+  const ReportPage({super.key, required this.report});
 
   @override
   State<ReportPage> createState() => _ReportPageState();
@@ -48,7 +51,7 @@ class _ReportPageState extends State<ReportPage> {
       </style>
     ''';
 
-    final htmlWithDarkTheme = widget.reportHtml.replaceFirst(
+    final htmlWithDarkTheme = widget.report.reportHtml.replaceFirst(
       '</head>',
       '$darkThemeCss</head>',
     );
@@ -61,8 +64,16 @@ class _ReportPageState extends State<ReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Relatório ZAP')),
+      appBar: AppBar(title: Text('Relatório: ${widget.report.url}')),
       body: WebViewWidget(controller: _ctrl),
+      floatingActionButton: widget.report.isInBox
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                Get.find<ZapController>().saveReport(widget.report);
+              },
+              child: const Icon(Icons.save),
+            ),
     );
   }
 }
