@@ -14,10 +14,14 @@ class ReportPage extends StatefulWidget {
 
 class _ReportPageState extends State<ReportPage> {
   late final WebViewController _ctrl;
+  bool _isLoading = true;
+  DateTime? _loadingStartTime;
+  static const Duration _minimumLoadingDuration = Duration(milliseconds: 1000); // 1 second
 
   @override
   void initState() {
     super.initState();
+    _loadingStartTime = DateTime.now();
 
     const darkThemeCss = '''
       <style>
@@ -58,6 +62,20 @@ class _ReportPageState extends State<ReportPage> {
 
     _ctrl = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (String url) async {
+            final now = DateTime.now();
+            final elapsed = now.difference(_loadingStartTime!);
+            if (elapsed < _minimumLoadingDuration) {
+              await Future.delayed(_minimumLoadingDuration - elapsed);
+            }
+            setState(() {
+              _isLoading = false;
+            });
+          },
+        ),
+      )
       ..loadHtmlString(htmlWithDarkTheme);
   }
 
@@ -65,7 +83,18 @@ class _ReportPageState extends State<ReportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Relatório: ${widget.report.url}')),
-      body: WebViewWidget(controller: _ctrl),
+      body: Stack(
+        children: [
+          Opacity(
+            opacity: _isLoading ? 0 : 1,
+            child: WebViewWidget(controller: _ctrl),
+          ),
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
+      ),
       floatingActionButton: widget.report.isInBox
           ? null
           : FloatingActionButton(

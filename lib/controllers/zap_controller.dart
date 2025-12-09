@@ -116,7 +116,9 @@ class ZapController extends GetxController {
     Get.snackbar('Salvo', 'Relatório salvo com sucesso!');
   }
 
-  void getAllReports() {
+  Future<void> getAllReports() async {
+    // Pequeno atraso para permitir que a interface do usuário mostre o indicador de carregamento
+    await Future.delayed(const Duration(milliseconds: 1500));
     reports.value = dbService.getAllReports();
   }
 
